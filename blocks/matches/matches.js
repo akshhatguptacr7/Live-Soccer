@@ -10,53 +10,48 @@
   const searchInput = document.getElementById('ls-search');
 
   const toLocal = (d) => (d ? new Date(d).toLocaleString() : '');
-
   const safe = (v) => v || '';
 
   const renderMatchCard = (m) => {
     const home = (m.teams && m.teams.home) || {};
     const away = (m.teams && m.teams.away) || {};
-    const hasScore =
-      m.goals && m.goals.home !== null && m.goals.home !== undefined;
+    const hasScore = m.goals && m.goals.home !== null && m.goals.home !== undefined;
     const score = hasScore ? `${m.goals.home} - ${m.goals.away}` : 'vs';
     const id = m.fixture && m.fixture.id ? m.fixture.id : '';
+    const date = m.fixture && m.fixture.date ? m.fixture.date : '';
+    const statusShort = m.fixture && m.fixture.status && m.fixture.status.short ? m.fixture.status.short : '';
 
     return `
-      <div class="ls-match-card" data-id="${id}">
-        <div class="ls-teams">
-          <div class="ls-team">
-            <img class="ls-logo" src="${safe(home.logo)}" alt="${safe(home.name)}"/>
-            <span>${safe(home.name)}</span>
-          </div>
-          <div class="ls-score">${score}</div>
-          <div class="ls-team">
-            <img class="ls-logo" src="${safe(away.logo)}" alt="${safe(away.name)}"/>
-            <span>${safe(away.name)}</span>
-          </div>
-        </div>
-        <div class="ls-time">${toLocal(
-          m.fixture && m.fixture.date
-        )} · ${safe(m.fixture && m.fixture.status && m.fixture.status.short)}</div>
-      </div>
-    `;
+<div class="ls-match-card" data-id="${id}">
+  <div class="ls-teams">
+    <div class="ls-team">
+      <img class="ls-logo" src="${safe(home.logo)}" alt="${safe(home.name)}"/>
+      <span>${safe(home.name)}</span>
+    </div>
+    <div class="ls-score">${score}</div>
+    <div class="ls-team">
+      <img class="ls-logo" src="${safe(away.logo)}" alt="${safe(away.name)}"/>
+      <span>${safe(away.name)}</span>
+    </div>
+  </div>
+  <div class="ls-time">${toLocal(date)} · ${safe(statusShort)}</div>
+</div>
+`;
   };
 
   const renderTicker = (live) => {
     if (!ticker) return;
     if (!live || live.length === 0) {
-      ticker.innerHTML =
-        '<span class="ls-ticker-item">No live matches right now</span>';
+      ticker.innerHTML = '<span class="ls-ticker-item">No live matches right now</span>';
       return;
     }
     ticker.innerHTML = live
       .map((m) => {
-        const homeName = (m.teams && m.teams.home && m.teams.home.name) || '';
-        const awayName = (m.teams && m.teams.away && m.teams.away.name) || '';
-        const homeGoals =
-          m.goals && m.goals.home !== null ? m.goals.home : '';
-        const awayGoals =
-          m.goals && m.goals.away !== null ? m.goals.away : '';
-        return `<span class="ls-ticker-item">${homeName} ${homeGoals} - ${awayGoals} ${awayName}</span>`;
+        const hn = (m.teams && m.teams.home && m.teams.home.name) || '';
+        const an = (m.teams && m.teams.away && m.teams.away.name) || '';
+        const hg = m.goals && m.goals.home !== null ? m.goals.home : '';
+        const ag = m.goals && m.goals.away !== null ? m.goals.away : '';
+        return `<span class="ls-ticker-item">${hn} ${hg} - ${ag} ${an}</span>`;
       })
       .join('');
   };
@@ -96,15 +91,11 @@
       .sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
 
     if (rootLive) {
-      rootLive.innerHTML = live.length
-        ? live.map(renderMatchCard).join('')
-        : '<div class="ls-muted">No live matches</div>';
+      rootLive.innerHTML = live.length ? live.map(renderMatchCard).join('') : '<div class="ls-muted">No live matches</div>';
     }
 
     if (rootUp) {
-      rootUp.innerHTML = upcoming.length
-        ? upcoming.map(renderMatchCard).join('')
-        : '<div class="ls-muted">No upcoming matches</div>';
+      rootUp.innerHTML = upcoming.length ? upcoming.map(renderMatchCard).join('') : '<div class="ls-muted">No upcoming matches</div>';
     }
 
     renderTicker(live);
@@ -118,12 +109,10 @@
   };
 
   const onSearch = (e) => {
-    const q =
-      (e && e.target && e.target.value && e.target.value.toLowerCase()) || '';
+    const q = (e && e.target && e.target.value && e.target.value.toLowerCase()) || '';
     const cards = document.querySelectorAll('.ls-match-card');
     Array.prototype.forEach.call(cards, (card) => {
-      card.style.display =
-        card.textContent.toLowerCase().indexOf(q) !== -1 ? '' : 'none';
+      card.style.display = card.textContent.toLowerCase().indexOf(q) !== -1 ? '' : 'none';
     });
   };
 
